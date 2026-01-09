@@ -1,0 +1,23 @@
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+
+# MemoryCaptures can get excessive in size.
+MemoryCaptures/
+
+# Visual Studio cache
+.vs/
+
+# Gradle cache
+.gradle/
+
+# Rider
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
