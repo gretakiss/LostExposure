@@ -3,7 +3,10 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Monitor
+  - Door
+  - ReturnDoor
   layers:
   - Default
   - TransparentFX
@@ -11,7 +14,7 @@ TagManager:
   - Door
   - Water
   - UI
-  - 
+  - Obstacle
   - 
   - 
   - 

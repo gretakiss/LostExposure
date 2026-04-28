@@ -7,10 +7,14 @@ public class SimpleFPSController : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform cameraTransform;
 
+    [Header("Main Level")]
+    public MainLevelManager mainLevelManager;
+
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 3.5f;
     [SerializeField] private float sprintSpeed = 5.5f;
     [SerializeField] private float gravity = -20f;
+    [SerializeField] private float jumpHeight = 1.2f;
 
     [Header("Look")]
     [SerializeField] private float mouseSensitivity = 0.12f;
@@ -26,8 +30,10 @@ public class SimpleFPSController : MonoBehaviour
 
         if (cameraTransform == null)
         {
-            var cam = GetComponentInChildren<Camera>();
-            if (cam != null) cameraTransform = cam.transform;
+            Camera cam = GetComponentInChildren<Camera>();
+
+            if (cam != null)
+                cameraTransform = cam.transform;
         }
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -36,8 +42,25 @@ public class SimpleFPSController : MonoBehaviour
 
     private void Update()
     {
-        // --- LOOK ---
+        // Game Over alatt ne lehessen mozogni vagy körbenézni.
+        if (mainLevelManager != null && mainLevelManager.IsGameOver())
+            return;
+
+        HandleLook();
+        HandleMovement();
+
+        // ESC csak kurzor feloldás debughoz, ha nincs külön pause menu.
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    private void HandleLook()
+    {
         Vector2 mouseDelta = Vector2.zero;
+
         if (Mouse.current != null)
             mouseDelta = Mouse.current.delta.ReadValue();
 
@@ -51,9 +74,12 @@ public class SimpleFPSController : MonoBehaviour
 
         if (cameraTransform != null)
             cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+    }
 
-        // --- MOVE ---
+    private void HandleMovement()
+    {
         Vector2 move = Vector2.zero;
+
         if (Keyboard.current != null)
         {
             if (Keyboard.current.wKey.isPressed) move.y += 1;
@@ -64,24 +90,21 @@ public class SimpleFPSController : MonoBehaviour
 
         Vector3 moveDir = (transform.right * move.x + transform.forward * move.y).normalized;
 
+        bool jumpPressed = Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame;
         bool sprint = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
+
         float speed = sprint ? sprintSpeed : moveSpeed;
 
-        // Gravity
         if (controller.isGrounded && verticalVelocity < 0f)
             verticalVelocity = -2f;
+
+        if (controller.isGrounded && jumpPressed)
+            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
         verticalVelocity += gravity * Time.deltaTime;
 
         Vector3 velocity = moveDir * speed + Vector3.up * verticalVelocity;
 
         controller.Move(velocity * Time.deltaTime);
-
-        // ESC to unlock cursor
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
     }
 }
